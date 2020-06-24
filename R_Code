@@ -1,0 +1,46 @@
+#Packages
+install.packages("xlsx")
+library(xlsx)
+setwd("C:/Users/skasi/Documents/Data Mining documents/DM2 Project")
+getwd()
+online_data = read.csv("online_shoppers_intention (1).csv",header = T)
+View(online_data)
+
+#Converting character into numeric variable
+online_data$Revenue = as.numeric(online_data$Revenue)
+online_data$Weekend = as.numeric(online_data$Weekend)
+online_data$VisitorType = as.numeric(online_data$VisitorType)
+View(online_data)
+online_data$OperatingSystems = as.factor(online_data$OperatingSystems)
+online_data$Browser = as.factor(online_data$Browser)
+online_data$Region = as.factor(online_data$Region)
+online_data$TrafficType = as.factor(online_data$TrafficType)
+online_data$Weekend = as.factor(online_data$Weekend)
+online_data$Revenue = as.factor(online_data$Revenue)
+online_data$VisitorType = as.factor(online_data$VisitorType)
+View(online_data)
+summary(online_data)
+str(online_data)
+
+#SVM Package
+install.packages("e1071")
+library(e1071)
+
+#Training and Test set
+set.seed(1)
+spliting_data = sample(2,nrow(online_data), replace = TRUE, prob = c(0.7,0.3))
+training_data = online_data[spliting_data==1,]
+test_data = online_data[spliting_data==2,]
+plot(training_data, col = (2-training_data$Revenue))
+
+#Model fitting
+svmfit_training = svm(Revenue~., data = training_data, kernel = "radial",gamma =1, cost = 1, scale = FALSE)
+summary(svmfit_training)
+plot(svmfit_training,training_data)
+
+svmfit = svm(Revenue~., data = training_data, kernel = "radial",gamma =1, cost = 1e5)
+
+#Cross Validation using tune() for choosing gamma and cost value
+set.seed(1)
+tune.out = tune(svm, Revenue~., data = training_data, kernel = "radial",ranges = list(cost=c(0.1,1,10,100,1000),gamma=c(0.5,1,2,3,4)))
+summary(tune.out)
